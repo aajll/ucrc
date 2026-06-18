@@ -29,7 +29,7 @@
  *    A single @c uint32_t carries the register for every width; results are
  *    masked to the model's width. Requires C11 (uses @c _Static_assert).
  *
- *    ## TI C2000 / 16-bit-MAU note
+ *    ## 16-bit-MAU note
  *    On a 16-bit-MAU target one octet occupies one @c ucrc_octet_t and only
  *    its low 8 bits are used; the CRC is bit-identical to an 8-bit-MAU peer
  *    and @c len always counts octets. Where two octets are genuinely packed

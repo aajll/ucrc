@@ -9,11 +9,9 @@
  *    type the library consumes.
  *
  *    A CRC is defined over a stream of 8-bit octets. On byte-addressable
- *    targets (x86_64, ARM, AArch64, RISC-V, AVR, ...) one octet occupies
- *    one @c uint8_t. On word-addressable targets where @c CHAR_BIT is 16
- *    (the Texas Instruments C2000 family, including the F28379D) the
- *    smallest storage unit is 16 bits and @c uint8_t is an alias for
- *    @c uint16_t.
+ *    targets one octet occupies one @c uint8_t. On word-addressable targets
+ *    where @c CHAR_BIT is 16 the smallest storage unit is 16 bits and
+ *    @c uint8_t is an alias for @c uint16_t.
  *
  *    ucrc consumes the input as one logical octet per addressable unit and
  *    uses only the low 8 bits of each unit (see @c ucrc_octet_t). The CRC
@@ -44,8 +42,8 @@
 /**
  * @brief Storage type for one logical octet of the CRC input stream.
  *
- * On a 16-bit-MAU target this is @c uint16_t (matching the C2000 aliasing
- * of @c uint8_t); only the low 8 bits of each element are consumed.
+ * On a 16-bit-MAU target this is @c uint16_t (matching the target's
+ * aliasing of @c uint8_t); only the low 8 bits of each element are consumed.
  */
 typedef uint16_t ucrc_octet_t;
 #else

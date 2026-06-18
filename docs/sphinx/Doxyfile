@@ -1,0 +1,35 @@
+# Doxyfile for ucrc library
+# Generated for Sphinx/Breathe integration
+
+# Input configuration
+INPUT = ../../include/ucrc.h ../../include/ucrc_conf.h ../../include/ucrc_platform.h
+RECURSIVE = NO
+
+# Output configuration
+OUTPUT_DIRECTORY = ../_build/doxygen
+GENERATE_XML = YES
+XML_OUTPUT = xml
+GENERATE_HTML = NO
+GENERATE_LATEX = NO
+
+# Content filtering
+FILTER_PATTERNS =
+
+# Build options
+QUIET = NO
+WARNINGS = YES
+WARN_IF_UNDOCUMENTED = NO
+WARN_IF_DOC_ERROR = YES
+
+# Configuration for reading the input files
+FILE_PATTERNS = *.h *.c
+OPTIMIZE_OUTPUT_FOR_C = YES
+
+# Preprocessing
+ENABLE_PREPROCESSING = YES
+MACRO_EXPANSION = YES
+EXPAND_ONLY_PREDEF = NO
+PREDEFINED = __cplusplus \
+             UCRC_ENABLE_CRC8=1 \
+             UCRC_ENABLE_CRC16=1 \
+             UCRC_ENABLE_CRC32=1
