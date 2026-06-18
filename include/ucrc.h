@@ -67,23 +67,23 @@ extern "C" {
  * @details
  *    Fully specifies a CRC. Predefined @c const instances are provided for
  *    the common standards; an application may also define its own. For a
- *    table strategy, @c table points to a lookup table matching @c poly,
- *    @c width, and @c refin; when @c table is @c NULL the bitwise engine is
- *    used regardless of the build strategy (the path for arbitrary
- *    application-defined polynomials).
+ *    table strategy, @c table points to a @c uint32_t lookup table (one
+ *    element type for every width) matching @c poly, @c width, and @c refin;
+ *    when @c table is @c NULL the bitwise engine is used regardless of the
+ *    build strategy (the path for arbitrary application-defined polynomials).
  *
  * @note  @c refin and @c refout must be equal for table strategies; the
  *        bitwise engine supports them independently. The predefined models
  *        all satisfy @c refin @c == @c refout.
  */
 typedef struct {
-        uint32_t poly;     /**< Generator polynomial, normal form.        */
-        uint32_t init;     /**< Initial register value (catalogue form).  */
-        uint32_t xorout;   /**< Final XOR mask.                           */
-        const void *table; /**< Strategy lookup table, or NULL = bitwise. */
-        uint8_t width;     /**< CRC width in bits: 8, 16, or 32.          */
-        bool refin;        /**< Reflect input octets when true.           */
-        bool refout;       /**< Reflect output register when true.        */
+        uint32_t poly;         /**< Generator polynomial, normal form.    */
+        uint32_t init;         /**< Initial register value.               */
+        uint32_t xorout;       /**< Final XOR mask.                       */
+        const uint32_t *table; /**< Strategy table, or NULL = bitwise.    */
+        uint8_t width;         /**< CRC width in bits: 8, 16, or 32.      */
+        bool refin;            /**< Reflect input octets when true.       */
+        bool refout;           /**< Reflect output register when true.    */
 } ucrc_model_t;
 
 /* ================ PREDEFINED MODELS ======================================= */

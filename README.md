@@ -113,10 +113,10 @@ Set these before including `ucrc.h`, or at the toolchain level with `-D`.
 | Strategy | Table ROM (CRC-16 / CRC-32) | Relative speed |
 | -------- | --------------------------- | -------------- |
 | Bitwise  | 0 B / 0 B                   | baseline       |
-| Nibble   | 32 B / 64 B                 | ~2 to 4x       |
-| Byte     | 512 B / 1 KiB               | ~8x            |
+| Nibble   | 64 B / 64 B                 | ~2 to 4x       |
+| Byte     | 1 KiB / 1 KiB               | ~8x            |
 
-Predefined-model tables are `static const` (flash/`.rodata`), so they cost no RAM. The bitwise engine is always present as the fallback for untabulated (custom) models, regardless of the selected strategy.
+Table entries are `uint32_t` for every width (one element type), so a single engine serves all widths with no pointer casts. Predefined-model tables are `static const` (flash/`.rodata`), so they cost no RAM. The bitwise engine is always present as the fallback for untabulated (custom) models, regardless of the selected strategy.
 
 ## API Reference
 
@@ -144,13 +144,13 @@ uint32_t ucrc_finish(const ucrc_model_t *model, uint32_t crc);
 
 ```c
 typedef struct {
-        uint32_t poly;     /* Generator polynomial, normal form        */
-        uint32_t init;     /* Initial register value (catalogue form)  */
-        uint32_t xorout;   /* Final XOR mask                           */
-        const void *table; /* Strategy lookup table, or NULL = bitwise */
-        uint8_t width;     /* CRC width in bits: 8, 16, or 32          */
-        bool refin;        /* Reflect input octets when true           */
-        bool refout;       /* Reflect output register when true        */
+        uint32_t poly;         /* Generator polynomial, normal form    */
+        uint32_t init;         /* Initial register value               */
+        uint32_t xorout;       /* Final XOR mask                       */
+        const uint32_t *table; /* Strategy table, or NULL = bitwise    */
+        uint8_t width;         /* CRC width in bits: 8, 16, or 32      */
+        bool refin;            /* Reflect input octets when true       */
+        bool refout;           /* Reflect output register when true    */
 } ucrc_model_t;
 ```
 

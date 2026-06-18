@@ -105,18 +105,6 @@ build_table(const model_t *m, unsigned entries, uint32_t *out)
         }
 }
 
-static const char *
-ctype_of(unsigned width)
-{
-        if (width <= 8u) {
-                return "uint8_t";
-        }
-        if (width <= 16u) {
-                return "uint16_t";
-        }
-        return "uint32_t";
-}
-
 static void
 emit_literal(FILE *out, unsigned width, uint32_t value)
 {
@@ -137,18 +125,18 @@ emit_table_block(FILE *out, unsigned entries)
         for (k = 0; k < N_MODELS; k++) {
                 const model_t *m = &MODELS[k];
                 uint32_t table[256];
-                unsigned perline = (m->width <= 16u) ? 8u : 4u;
+                unsigned perline = 4u;
                 unsigned i;
 
                 build_table(m, entries, table);
                 fprintf(out, "#if %s\n", m->enable);
-                fprintf(out, "static const %s ucrc_tbl_%s[%u] = {\n",
-                        ctype_of(m->width), m->var + 5, entries);
+                fprintf(out, "static const uint32_t ucrc_tbl_%s[%u] = {\n",
+                        m->var + 5, entries);
                 for (i = 0u; i < entries; i++) {
                         if ((i % perline) == 0u) {
                                 fprintf(out, "        ");
                         }
-                        emit_literal(out, m->width, table[i]);
+                        fprintf(out, "0x%08Xu", (unsigned)table[i]);
                         fputc(',', out);
                         if ((i % perline) == perline - 1u
                             || i == entries - 1u) {

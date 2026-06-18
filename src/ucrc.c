@@ -38,7 +38,7 @@ ucrc_reflect(uint32_t value, uint8_t bits)
         uint8_t i;
 
         for (i = 0u; i < bits; i++) {
-                if ((value >> i) & 1u) {
+                if (((value >> i) & 1u) != 0u) {
                         result |= (uint32_t)1u << (uint8_t)(bits - 1u - i);
                 }
         }
@@ -80,7 +80,7 @@ ucrc_bitwise_update(const ucrc_model_t *model, uint32_t crc,
                         uint32_t top = crc & topbit;
 
                         crc = (crc << 1) & mask;
-                        if ((octet >> (uint8_t)(7u - bit)) & 1u) {
+                        if (((octet >> (uint8_t)(7u - bit)) & 1u) != 0u) {
                                 top ^= topbit;
                         }
                         if (top != 0u) {
@@ -95,126 +95,76 @@ ucrc_bitwise_update(const ucrc_model_t *model, uint32_t crc,
 #if UCRC_STRATEGY == UCRC_STRATEGY_BYTE
 
 /*
- * Byte-wise (256-entry) update, instantiated per table element width. The
- * table matches model->refin: reflected models keep the register reflected
- * (right-shift), non-reflected models keep it normal (left-shift + mask).
+ * Byte-wise (256-entry) update. Tables are uint32_t for every width, so one
+ * function serves CRC-8/16/32 with no per-type specialisation and no cast.
+ * The table matches model->refin: reflected models keep the register
+ * reflected (right-shift), non-reflected models keep it normal (left-shift
+ * with masking to the model width).
  */
-#define UCRC_GEN_BYTE_UPDATE(SUFFIX, TYPE)                                     \
-        static uint32_t ucrc_byte_update_##SUFFIX(                             \
-            const ucrc_model_t *model, uint32_t crc, const ucrc_octet_t *data, \
-            size_t len)                                                        \
-        {                                                                      \
-                const TYPE *table = (const TYPE *)model->table;                \
-                size_t i;                                                      \
-                if (model->refin) {                                            \
-                        for (i = 0u; i < len; i++) {                           \
-                                uint32_t o = (uint32_t)(data[i] & 0xFFu);      \
-                                crc = (crc >> 8) ^ table[(crc ^ o) & 0xFFu];   \
-                        }                                                      \
-                } else {                                                       \
-                        uint32_t mask = ucrc_width_mask(model->width);         \
-                        uint8_t sh = (uint8_t)(model->width - 8u);             \
-                        for (i = 0u; i < len; i++) {                           \
-                                uint32_t o = (uint32_t)(data[i] & 0xFFu);      \
-                                crc = ((crc << 8)                              \
-                                       ^ table[((crc >> sh) ^ o) & 0xFFu])     \
-                                      & mask;                                  \
-                        }                                                      \
-                }                                                              \
-                return crc;                                                    \
-        }
-
-#if UCRC_ENABLE_CRC8
-UCRC_GEN_BYTE_UPDATE(u8, uint8_t)
-#endif
-#if UCRC_ENABLE_CRC16
-UCRC_GEN_BYTE_UPDATE(u16, uint16_t)
-#endif
-#if UCRC_ENABLE_CRC32
-UCRC_GEN_BYTE_UPDATE(u32, uint32_t)
-#endif
-
 static uint32_t
 ucrc_table_update(const ucrc_model_t *model, uint32_t crc,
                   const ucrc_octet_t *data, size_t len)
 {
-        switch (model->width) {
-#if UCRC_ENABLE_CRC8
-        case 8u: return ucrc_byte_update_u8(model, crc, data, len);
-#endif
-#if UCRC_ENABLE_CRC16
-        case 16u: return ucrc_byte_update_u16(model, crc, data, len);
-#endif
-#if UCRC_ENABLE_CRC32
-        case 32u: return ucrc_byte_update_u32(model, crc, data, len);
-#endif
-        default: UCRC_ASSERT(false); return crc;
+        const uint32_t *table = model->table;
+        size_t i;
+
+        if (model->refin) {
+                for (i = 0u; i < len; i++) {
+                        uint32_t o = (uint32_t)(data[i] & 0xFFu);
+
+                        crc = (crc >> 8) ^ table[(crc ^ o) & 0xFFu];
+                }
+        } else {
+                uint32_t mask = ucrc_width_mask(model->width);
+                uint8_t sh = (uint8_t)(model->width - 8u);
+
+                for (i = 0u; i < len; i++) {
+                        uint32_t o = (uint32_t)(data[i] & 0xFFu);
+
+                        crc = ((crc << 8) ^ table[((crc >> sh) ^ o) & 0xFFu])
+                              & mask;
+                }
         }
+        return crc;
 }
 
 #elif UCRC_STRATEGY == UCRC_STRATEGY_NIBBLE
 
 /*
- * Half-byte (16-entry) update, two lookups per octet. Reflected processes
- * the low nibble first; non-reflected processes the high nibble first.
+ * Half-byte (16-entry) update, two lookups per octet. Tables are uint32_t for
+ * every width, so one function serves all widths with no cast. Reflected
+ * processes the low nibble first; non-reflected processes the high nibble
+ * first.
  */
-#define UCRC_GEN_NIBBLE_UPDATE(SUFFIX, TYPE)                                   \
-        static uint32_t ucrc_nibble_update_##SUFFIX(                           \
-            const ucrc_model_t *model, uint32_t crc, const ucrc_octet_t *data, \
-            size_t len)                                                        \
-        {                                                                      \
-                const TYPE *table = (const TYPE *)model->table;                \
-                size_t i;                                                      \
-                if (model->refin) {                                            \
-                        for (i = 0u; i < len; i++) {                           \
-                                uint32_t o = (uint32_t)(data[i] & 0xFFu);      \
-                                crc = (crc >> 4) ^ table[(crc ^ o) & 0xFu];    \
-                                crc = (crc >> 4)                               \
-                                      ^ table[(crc ^ (o >> 4)) & 0xFu];        \
-                        }                                                      \
-                } else {                                                       \
-                        uint32_t mask = ucrc_width_mask(model->width);         \
-                        uint8_t sh = (uint8_t)(model->width - 4u);             \
-                        for (i = 0u; i < len; i++) {                           \
-                                uint32_t o = (uint32_t)(data[i] & 0xFFu);      \
-                                crc =                                          \
-                                    ((crc << 4)                                \
-                                     ^ table[((crc >> sh) ^ (o >> 4)) & 0xFu]) \
-                                    & mask;                                    \
-                                crc = ((crc << 4)                              \
-                                       ^ table[((crc >> sh) ^ o) & 0xFu])      \
-                                      & mask;                                  \
-                        }                                                      \
-                }                                                              \
-                return crc;                                                    \
-        }
-
-#if UCRC_ENABLE_CRC8
-UCRC_GEN_NIBBLE_UPDATE(u8, uint8_t)
-#endif
-#if UCRC_ENABLE_CRC16
-UCRC_GEN_NIBBLE_UPDATE(u16, uint16_t)
-#endif
-#if UCRC_ENABLE_CRC32
-UCRC_GEN_NIBBLE_UPDATE(u32, uint32_t)
-#endif
-
 static uint32_t
 ucrc_table_update(const ucrc_model_t *model, uint32_t crc,
                   const ucrc_octet_t *data, size_t len)
 {
-        switch (model->width) {
-#if UCRC_ENABLE_CRC8
-        case 8u: return ucrc_nibble_update_u8(model, crc, data, len);
-#endif
-#if UCRC_ENABLE_CRC16
-        case 16u: return ucrc_nibble_update_u16(model, crc, data, len);
-#endif
-#if UCRC_ENABLE_CRC32
-        case 32u: return ucrc_nibble_update_u32(model, crc, data, len);
-#endif
-        default: UCRC_ASSERT(false); return crc;
+        const uint32_t *table = model->table;
+        size_t i;
+
+        if (model->refin) {
+                for (i = 0u; i < len; i++) {
+                        uint32_t o = (uint32_t)(data[i] & 0xFFu);
+
+                        crc = (crc >> 4) ^ table[(crc ^ o) & 0xFu];
+                        crc = (crc >> 4) ^ table[(crc ^ (o >> 4)) & 0xFu];
+                }
+        } else {
+                uint32_t mask = ucrc_width_mask(model->width);
+                uint8_t sh = (uint8_t)(model->width - 4u);
+
+                for (i = 0u; i < len; i++) {
+                        uint32_t o = (uint32_t)(data[i] & 0xFFu);
+
+                        crc = ((crc << 4)
+                               ^ table[((crc >> sh) ^ (o >> 4)) & 0xFu])
+                              & mask;
+                        crc = ((crc << 4) ^ table[((crc >> sh) ^ o) & 0xFu])
+                              & mask;
+                }
         }
+        return crc;
 }
 
 #endif /* UCRC_STRATEGY */
