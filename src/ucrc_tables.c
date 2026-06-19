@@ -17,6 +17,12 @@
 #if UCRC_STRATEGY == UCRC_STRATEGY_BYTE
 
 #if UCRC_ENABLE_CRC8
+/*
+ * Model: ucrc_crc8_smbus
+ * Polynomial: 0x07u, Init: 0x00u, XorOut: 0x00u
+ * RefIn: false, RefOut: false
+ * Check ("123456789"): 0xF4u
+ */
 static const uint32_t ucrc_tbl_crc8_smbus[256] = {
         0x00000000u, 0x00000007u, 0x0000000Eu, 0x00000009u,
         0x0000001Cu, 0x0000001Bu, 0x00000012u, 0x00000015u,
@@ -86,6 +92,12 @@ static const uint32_t ucrc_tbl_crc8_smbus[256] = {
 #endif
 
 #if UCRC_ENABLE_CRC16
+/*
+ * Model: ucrc_crc16_ccitt_false
+ * Polynomial: 0x1021u, Init: 0xFFFFu, XorOut: 0x0000u
+ * RefIn: false, RefOut: false
+ * Check ("123456789"): 0x29B1u
+ */
 static const uint32_t ucrc_tbl_crc16_ccitt_false[256] = {
         0x00000000u, 0x00001021u, 0x00002042u, 0x00003063u,
         0x00004084u, 0x000050A5u, 0x000060C6u, 0x000070E7u,
@@ -155,6 +167,12 @@ static const uint32_t ucrc_tbl_crc16_ccitt_false[256] = {
 #endif
 
 #if UCRC_ENABLE_CRC32
+/*
+ * Model: ucrc_crc32_iso_hdlc
+ * Polynomial: 0x04C11DB7u, Init: 0xFFFFFFFFu, XorOut: 0xFFFFFFFFu
+ * RefIn: true, RefOut: true
+ * Check ("123456789"): 0xCBF43926u
+ */
 static const uint32_t ucrc_tbl_crc32_iso_hdlc[256] = {
         0x00000000u, 0x77073096u, 0xEE0E612Cu, 0x990951BAu,
         0x076DC419u, 0x706AF48Fu, 0xE963A535u, 0x9E6495A3u,
@@ -226,6 +244,12 @@ static const uint32_t ucrc_tbl_crc32_iso_hdlc[256] = {
 #elif UCRC_STRATEGY == UCRC_STRATEGY_NIBBLE
 
 #if UCRC_ENABLE_CRC8
+/*
+ * Model: ucrc_crc8_smbus
+ * Polynomial: 0x07u, Init: 0x00u, XorOut: 0x00u
+ * RefIn: false, RefOut: false
+ * Check ("123456789"): 0xF4u
+ */
 static const uint32_t ucrc_tbl_crc8_smbus[16] = {
         0x00000000u, 0x00000007u, 0x0000000Eu, 0x00000009u,
         0x0000001Cu, 0x0000001Bu, 0x00000012u, 0x00000015u,
@@ -235,6 +259,12 @@ static const uint32_t ucrc_tbl_crc8_smbus[16] = {
 #endif
 
 #if UCRC_ENABLE_CRC16
+/*
+ * Model: ucrc_crc16_ccitt_false
+ * Polynomial: 0x1021u, Init: 0xFFFFu, XorOut: 0x0000u
+ * RefIn: false, RefOut: false
+ * Check ("123456789"): 0x29B1u
+ */
 static const uint32_t ucrc_tbl_crc16_ccitt_false[16] = {
         0x00000000u, 0x00001021u, 0x00002042u, 0x00003063u,
         0x00004084u, 0x000050A5u, 0x000060C6u, 0x000070E7u,
@@ -244,6 +274,12 @@ static const uint32_t ucrc_tbl_crc16_ccitt_false[16] = {
 #endif
 
 #if UCRC_ENABLE_CRC32
+/*
+ * Model: ucrc_crc32_iso_hdlc
+ * Polynomial: 0x04C11DB7u, Init: 0xFFFFFFFFu, XorOut: 0xFFFFFFFFu
+ * RefIn: true, RefOut: true
+ * Check ("123456789"): 0xCBF43926u
+ */
 static const uint32_t ucrc_tbl_crc32_iso_hdlc[16] = {
         0x00000000u, 0x1DB71064u, 0x3B6E20C8u, 0x26D930ACu,
         0x76DC4190u, 0x6B6B51F4u, 0x4DB26158u, 0x5005713Cu,

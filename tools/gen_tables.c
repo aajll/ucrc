@@ -67,7 +67,45 @@ reflect(uint32_t value, unsigned bits)
         return result;
 }
 
+static uint32_t
+compute_bitwise_check(const model_t *m)
+{
+        const char *data = "123456789";
+        size_t len = strlen(data);
+        uint32_t crc = m->init;
+        uint32_t mask = mask_of(m->width);
+        uint32_t topbit = (uint32_t)1u << (m->width - 1u);
+        size_t i;
+        int b;
+
+        for (i = 0u; i < len; i++) {
+                uint32_t octet = (uint32_t)(unsigned char)data[i];
+                if (m->refin) {
+                        octet = reflect(octet, 8u);
+                }
+                for (b = 0; b < 8; b++) {
+                        uint32_t top = crc & topbit;
+                        crc = (crc << 1) & mask;
+                        if ((octet >> (7 - b)) & 1u) {
+                                top ^= topbit;
+                        }
+                        if (top != 0u) {
+                                crc ^= m->poly;
+                        }
+                }
+                crc &= mask;
+        }
+
+        uint32_t out = crc;
+        if (m->refout) {
+                out = reflect(out, m->width);
+        }
+        out ^= m->xorout;
+        return out & mask;
+}
+
 /* Fill a table of `entries` (256 for byte, 16 for nibble) for one model. */
+
 static void
 build_table(const model_t *m, unsigned entries, uint32_t *out)
 {
@@ -130,6 +168,20 @@ emit_table_block(FILE *out, unsigned entries)
 
                 build_table(m, entries, table);
                 fprintf(out, "#if %s\n", m->enable);
+
+                /* Metadata comment for auditing */
+                fprintf(out, "/*\n * Model: %s\n * Polynomial: ", m->var);
+                emit_literal(out, m->width, m->poly);
+                fprintf(out, ", Init: ");
+                emit_literal(out, m->width, m->init);
+                fprintf(out, ", XorOut: ");
+                emit_literal(out, m->width, m->xorout);
+                fprintf(out, "\n * RefIn: %s, RefOut: %s\n",
+                        m->refin ? "true" : "false", m->refout ? "true" : "false");
+                fprintf(out, " * Check (\"123456789\"): ");
+                emit_literal(out, m->width, compute_bitwise_check(m));
+                fprintf(out, "\n */\n");
+
                 fprintf(out, "static const uint32_t ucrc_tbl_%s[%u] = {\n",
                         m->var + 5, entries);
                 for (i = 0u; i < entries; i++) {
