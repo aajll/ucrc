@@ -23,7 +23,7 @@
  * @brief Mask covering @p width low bits (0xFFFFFFFF for width 32).
  */
 static uint32_t
-ucrc_width_mask(uint8_t width)
+ucrc_width_mask(uint_fast8_t width)
 {
         return (width >= 32u) ? 0xFFFFFFFFu : (((uint32_t)1u << width) - 1u);
 }
@@ -32,14 +32,14 @@ ucrc_width_mask(uint8_t width)
  * @brief Reflect the low @p bits bits of @p value (bit 0 <-> bit bits-1).
  */
 static uint32_t
-ucrc_reflect(uint32_t value, uint8_t bits)
+ucrc_reflect(uint32_t value, uint_fast8_t bits)
 {
         uint32_t result = 0u;
-        uint8_t i;
+        uint_fast8_t i;
 
         for (i = 0u; i < bits; i++) {
                 if (((value >> i) & 1u) != 0u) {
-                        result |= (uint32_t)1u << (uint8_t)(bits - 1u - i);
+                        result |= (uint32_t)1u << (uint_fast8_t)(bits - 1u - i);
                 }
         }
         return result;
@@ -66,12 +66,12 @@ ucrc_bitwise_update(const ucrc_model_t *model, uint32_t crc,
                     const ucrc_octet_t *data, size_t len)
 {
         uint32_t mask = ucrc_width_mask(model->width);
-        uint32_t topbit = (uint32_t)1u << (uint8_t)(model->width - 1u);
+        uint32_t topbit = (uint32_t)1u << (uint_fast8_t)(model->width - 1u);
         size_t i;
 
         for (i = 0u; i < len; i++) {
                 uint32_t octet = (uint32_t)(data[i] & 0xFFu);
-                uint8_t bit;
+                uint_fast8_t bit;
 
                 if (model->refin) {
                         octet = ucrc_reflect(octet, 8u);
@@ -80,7 +80,7 @@ ucrc_bitwise_update(const ucrc_model_t *model, uint32_t crc,
                         uint32_t top = crc & topbit;
 
                         crc = (crc << 1) & mask;
-                        if (((octet >> (uint8_t)(7u - bit)) & 1u) != 0u) {
+                        if (((octet >> (uint_fast8_t)(7u - bit)) & 1u) != 0u) {
                                 top ^= topbit;
                         }
                         if (top != 0u) {
@@ -116,7 +116,7 @@ ucrc_table_update(const ucrc_model_t *model, uint32_t crc,
                 }
         } else {
                 uint32_t mask = ucrc_width_mask(model->width);
-                uint8_t sh = (uint8_t)(model->width - 8u);
+                uint_fast8_t sh = (uint_fast8_t)(model->width - 8u);
 
                 for (i = 0u; i < len; i++) {
                         uint32_t o = (uint32_t)(data[i] & 0xFFu);
@@ -152,7 +152,7 @@ ucrc_table_update(const ucrc_model_t *model, uint32_t crc,
                 }
         } else {
                 uint32_t mask = ucrc_width_mask(model->width);
-                uint8_t sh = (uint8_t)(model->width - 4u);
+                uint_fast8_t sh = (uint_fast8_t)(model->width - 4u);
 
                 for (i = 0u; i < len; i++) {
                         uint32_t o = (uint32_t)(data[i] & 0xFFu);

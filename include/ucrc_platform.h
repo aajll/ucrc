@@ -10,8 +10,9 @@
  *
  *    A CRC is defined over a stream of 8-bit octets. On byte-addressable
  *    targets one octet occupies one @c uint8_t. On word-addressable targets
- *    where @c CHAR_BIT is 16 the smallest storage unit is 16 bits and
- *    @c uint8_t is an alias for @c uint16_t.
+ *    where @c CHAR_BIT is 16 the smallest storage unit is 16 bits, so one
+ *    octet occupies a @c uint16_t; an exact-width @c uint8_t need not exist
+ *    at all on such a target, and the library does not rely on one.
  *
  *    ucrc consumes the input as one logical octet per addressable unit and
  *    uses only the low 8 bits of each unit (see @c ucrc_octet_t). The CRC

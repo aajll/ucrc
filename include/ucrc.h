@@ -81,7 +81,7 @@ typedef struct {
         uint32_t init;         /**< Initial register value.               */
         uint32_t xorout;       /**< Final XOR mask.                       */
         const uint32_t *table; /**< Strategy table, or NULL = bitwise.    */
-        uint8_t width;         /**< CRC width in bits: 8, 16, or 32.      */
+        uint_fast8_t width;    /**< CRC width in bits: 8, 16, or 32.      */
         bool refin;            /**< Reflect input octets when true.       */
         bool refout;           /**< Reflect output register when true.    */
 } ucrc_model_t;
