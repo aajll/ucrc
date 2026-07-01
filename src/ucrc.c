@@ -19,6 +19,7 @@
  *    required-rule deviations. The advisory-rule deviations below are the
  *    machine-checked record and mirror the misch/cppcheck deviation report
  *    (@c misra-deviations.txt plus the inline suppression comments):
+ *
  *    @li Rule 15.5 (single point of exit): the public functions use early
  *        guard-clause returns for the defensive NULL / @c len==0 contract
  *        (@c ucrc_begin, @c ucrc_update, @c ucrc_finish). Justification: the
@@ -30,10 +31,11 @@
  *        called only by consumer translation units outside this library, so
  *        cppcheck sees a single TU; it cannot be made @c static. Suppressed
  *        inline at its definition.
+ *
  *    Directive 4.9 (function-like macro) is a further deliberate deviation the
- *    automated rule set does not check: @c UCRC_ASSERT is a macro so integrators
- *    can redirect it to a supervisor and so it compiles out entirely in a
- *    hardened build. Full tool-driven compliance additionally requires a
+ *    automated rule set does not check: @c UCRC_ASSERT is a macro so
+ * integrators can redirect it to a supervisor and so it compiles out entirely
+ * in a hardened build. Full tool-driven compliance additionally requires a
  *    certified static analyser, which this repository does not vendor.
  */
 
