@@ -257,7 +257,9 @@ ucrc_finish(const ucrc_model_t *model, uint32_t crc)
 }
 
 uint32_t
-/* cppcheck-suppress[misra-c2012-8.7] ; @deviation public API entry point declared in ucrc.h; referenced only by consumer TUs outside this library, so cppcheck sees a single translation unit */
+/* cppcheck-suppress[misra-c2012-8.7] ; @deviation public API entry point
+ * declared in ucrc.h; referenced only by consumer TUs outside this library,
+ * so cppcheck sees a single translation unit */
 ucrc_compute(const ucrc_model_t *model, const ucrc_octet_t *data, size_t len)
 {
         uint32_t crc = ucrc_begin(model);
