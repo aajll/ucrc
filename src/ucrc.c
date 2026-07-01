@@ -11,6 +11,23 @@
  *    @c table is NULL (arbitrary application-defined polynomials), so a
  *    table-strategy build still handles untabulated models. Predefined
  *    models carry a table matching the build strategy and use the fast path.
+ *
+ * @par MISRA C:2023 deviation record
+ *    ucrc is written to be MISRA C:2023 aware (fixed-width unsigned types,
+ *    explicit @c u suffixes, no heap, no recursion, no @c errno, no
+ *    undefined-behaviour shifts, @c static @c const tables). There are zero
+ *    required-rule deviations. The following advisory-rule deviations are
+ *    accepted project-wide:
+ *    @li Rule 15.5 (single point of exit): the public functions use early
+ *        guard-clause returns for the defensive NULL / @c len==0 contract
+ *        (@c ucrc_begin, @c ucrc_update, @c ucrc_finish). Justification: the
+ *        guards make the no-undefined-behaviour contract explicit and keep the
+ *        happy path unnested and auditable.
+ *    @li Directive 4.9 (function-like macro): @c UCRC_ASSERT is deliberately a
+ *        macro so integrators can redirect it to a supervisor and so it
+ *        compiles out entirely in a hardened build.
+ *    Full tool-driven compliance requires a certified static analyser, which
+ *    this repository does not vendor.
  */
 
 /* ================ INCLUDES ================================================ */
@@ -204,12 +221,15 @@ ucrc_update(const ucrc_model_t *model, uint32_t crc, const ucrc_octet_t *data,
                 return crc;
         }
 
+#if UCRC_STRATEGY == UCRC_STRATEGY_BITWISE
+        /* Bitwise build: the table engine is not compiled; every model,
+         * tabulated or not, is served by the bitwise engine. */
+        return ucrc_bitwise_update(model, crc, data, len);
+#else
+        /* Table build: untabulated (custom) models fall back to bitwise. */
         if (model->table == NULL) {
                 return ucrc_bitwise_update(model, crc, data, len);
         }
-#if UCRC_STRATEGY == UCRC_STRATEGY_BITWISE
-        return ucrc_bitwise_update(model, crc, data, len);
-#else
         return ucrc_table_update(model, crc, data, len);
 #endif
 }
