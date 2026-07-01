@@ -11,6 +11,30 @@
  *    @c table is NULL (arbitrary application-defined polynomials), so a
  *    table-strategy build still handles untabulated models. Predefined
  *    models carry a table matching the build strategy and use the fast path.
+ *
+ * @par MISRA C:2023 deviation record
+ *    ucrc is written to be MISRA C:2023 aware (fixed-width unsigned types,
+ *    explicit @c u suffixes, no heap, no recursion, no @c errno, no
+ *    undefined-behaviour shifts, @c static @c const tables). There are zero
+ *    required-rule deviations. The advisory-rule deviations below are the
+ *    machine-checked record and mirror the misch/cppcheck deviation report
+ *    (@c misra-deviations.txt plus the inline suppression comments):
+ *    @li Rule 15.5 (single point of exit): the public functions use early
+ *        guard-clause returns for the defensive NULL / @c len==0 contract
+ *        (@c ucrc_begin, @c ucrc_update, @c ucrc_finish). Justification: the
+ *        guards make the no-undefined-behaviour contract explicit and keep the
+ *        happy path unnested and auditable. Deviated project-wide in
+ *        @c misra-deviations.txt.
+ *    @li Rule 8.7 (external linkage referenced in one translation unit):
+ *        @c ucrc_compute is a public entry point declared in @c ucrc.h and is
+ *        called only by consumer translation units outside this library, so
+ *        cppcheck sees a single TU; it cannot be made @c static. Suppressed
+ *        inline at its definition.
+ *    Directive 4.9 (function-like macro) is a further deliberate deviation the
+ *    automated rule set does not check: @c UCRC_ASSERT is a macro so integrators
+ *    can redirect it to a supervisor and so it compiles out entirely in a
+ *    hardened build. Full tool-driven compliance additionally requires a
+ *    certified static analyser, which this repository does not vendor.
  */
 
 /* ================ INCLUDES ================================================ */
@@ -67,6 +91,7 @@ ucrc_bitwise_update(const ucrc_model_t *model, uint32_t crc,
 {
         uint32_t mask = ucrc_width_mask(model->width);
         uint32_t topbit = (uint32_t)1u << (uint_fast8_t)(model->width - 1u);
+        uint32_t reg = crc;
         size_t i;
 
         for (i = 0u; i < len; i++) {
@@ -77,19 +102,19 @@ ucrc_bitwise_update(const ucrc_model_t *model, uint32_t crc,
                         octet = ucrc_reflect(octet, 8u);
                 }
                 for (bit = 0u; bit < 8u; bit++) {
-                        uint32_t top = crc & topbit;
+                        uint32_t top = reg & topbit;
 
-                        crc = (crc << 1) & mask;
+                        reg = (reg << 1) & mask;
                         if (((octet >> (uint_fast8_t)(7u - bit)) & 1u) != 0u) {
                                 top ^= topbit;
                         }
                         if (top != 0u) {
-                                crc ^= model->poly;
+                                reg ^= model->poly;
                         }
                 }
-                crc &= mask;
+                reg &= mask;
         }
-        return crc;
+        return reg;
 }
 
 #if UCRC_STRATEGY == UCRC_STRATEGY_BYTE
@@ -106,13 +131,14 @@ ucrc_table_update(const ucrc_model_t *model, uint32_t crc,
                   const ucrc_octet_t *data, size_t len)
 {
         const uint32_t *table = model->table;
+        uint32_t reg = crc;
         size_t i;
 
         if (model->refin) {
                 for (i = 0u; i < len; i++) {
                         uint32_t o = (uint32_t)(data[i] & 0xFFu);
 
-                        crc = (crc >> 8) ^ table[(crc ^ o) & 0xFFu];
+                        reg = (reg >> 8) ^ table[(reg ^ o) & 0xFFu];
                 }
         } else {
                 uint32_t mask = ucrc_width_mask(model->width);
@@ -121,11 +147,11 @@ ucrc_table_update(const ucrc_model_t *model, uint32_t crc,
                 for (i = 0u; i < len; i++) {
                         uint32_t o = (uint32_t)(data[i] & 0xFFu);
 
-                        crc = ((crc << 8) ^ table[((crc >> sh) ^ o) & 0xFFu])
+                        reg = ((reg << 8) ^ table[((reg >> sh) ^ o) & 0xFFu])
                               & mask;
                 }
         }
-        return crc;
+        return reg;
 }
 
 #elif UCRC_STRATEGY == UCRC_STRATEGY_NIBBLE
@@ -141,14 +167,15 @@ ucrc_table_update(const ucrc_model_t *model, uint32_t crc,
                   const ucrc_octet_t *data, size_t len)
 {
         const uint32_t *table = model->table;
+        uint32_t reg = crc;
         size_t i;
 
         if (model->refin) {
                 for (i = 0u; i < len; i++) {
                         uint32_t o = (uint32_t)(data[i] & 0xFFu);
 
-                        crc = (crc >> 4) ^ table[(crc ^ o) & 0xFu];
-                        crc = (crc >> 4) ^ table[(crc ^ (o >> 4)) & 0xFu];
+                        reg = (reg >> 4) ^ table[(reg ^ o) & 0xFu];
+                        reg = (reg >> 4) ^ table[(reg ^ (o >> 4)) & 0xFu];
                 }
         } else {
                 uint32_t mask = ucrc_width_mask(model->width);
@@ -157,14 +184,14 @@ ucrc_table_update(const ucrc_model_t *model, uint32_t crc,
                 for (i = 0u; i < len; i++) {
                         uint32_t o = (uint32_t)(data[i] & 0xFFu);
 
-                        crc = ((crc << 4)
-                               ^ table[((crc >> sh) ^ (o >> 4)) & 0xFu])
+                        reg = ((reg << 4)
+                               ^ table[((reg >> sh) ^ (o >> 4)) & 0xFu])
                               & mask;
-                        crc = ((crc << 4) ^ table[((crc >> sh) ^ o) & 0xFu])
+                        reg = ((reg << 4) ^ table[((reg >> sh) ^ o) & 0xFu])
                               & mask;
                 }
         }
-        return crc;
+        return reg;
 }
 
 #endif /* UCRC_STRATEGY */
@@ -204,12 +231,15 @@ ucrc_update(const ucrc_model_t *model, uint32_t crc, const ucrc_octet_t *data,
                 return crc;
         }
 
+#if UCRC_STRATEGY == UCRC_STRATEGY_BITWISE
+        /* Bitwise build: the table engine is not compiled; every model,
+         * tabulated or not, is served by the bitwise engine. */
+        return ucrc_bitwise_update(model, crc, data, len);
+#else
+        /* Table build: untabulated (custom) models fall back to bitwise. */
         if (model->table == NULL) {
                 return ucrc_bitwise_update(model, crc, data, len);
         }
-#if UCRC_STRATEGY == UCRC_STRATEGY_BITWISE
-        return ucrc_bitwise_update(model, crc, data, len);
-#else
         return ucrc_table_update(model, crc, data, len);
 #endif
 }
@@ -234,6 +264,9 @@ ucrc_finish(const ucrc_model_t *model, uint32_t crc)
 }
 
 uint32_t
+/* cppcheck-suppress[misra-c2012-8.7] ; @deviation public API entry point
+ * declared in ucrc.h; referenced only by consumer TUs outside this library,
+ * so cppcheck sees a single translation unit */
 ucrc_compute(const ucrc_model_t *model, const ucrc_octet_t *data, size_t len)
 {
         uint32_t crc = ucrc_begin(model);
