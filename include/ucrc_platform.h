@@ -53,7 +53,7 @@ typedef uint8_t ucrc_octet_t;
 #endif
 
 /* Catch unsupported configurations at compile time. */
-_Static_assert(UCRC_ADDR_UNIT_BITS == 8u || UCRC_ADDR_UNIT_BITS == 16u,
+_Static_assert((UCRC_ADDR_UNIT_BITS == 8u) || (UCRC_ADDR_UNIT_BITS == 16u),
                "ucrc only supports 8-bit or 16-bit addressable units");
 
 #endif /* UCRC_PLATFORM_H_ */

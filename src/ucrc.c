@@ -84,6 +84,7 @@ ucrc_bitwise_update(const ucrc_model_t *model, uint32_t crc,
 {
         uint32_t mask = ucrc_width_mask(model->width);
         uint32_t topbit = (uint32_t)1u << (uint_fast8_t)(model->width - 1u);
+        uint32_t reg = crc;
         size_t i;
 
         for (i = 0u; i < len; i++) {
@@ -94,19 +95,19 @@ ucrc_bitwise_update(const ucrc_model_t *model, uint32_t crc,
                         octet = ucrc_reflect(octet, 8u);
                 }
                 for (bit = 0u; bit < 8u; bit++) {
-                        uint32_t top = crc & topbit;
+                        uint32_t top = reg & topbit;
 
-                        crc = (crc << 1) & mask;
+                        reg = (reg << 1) & mask;
                         if (((octet >> (uint_fast8_t)(7u - bit)) & 1u) != 0u) {
                                 top ^= topbit;
                         }
                         if (top != 0u) {
-                                crc ^= model->poly;
+                                reg ^= model->poly;
                         }
                 }
-                crc &= mask;
+                reg &= mask;
         }
-        return crc;
+        return reg;
 }
 
 #if UCRC_STRATEGY == UCRC_STRATEGY_BYTE
@@ -123,13 +124,14 @@ ucrc_table_update(const ucrc_model_t *model, uint32_t crc,
                   const ucrc_octet_t *data, size_t len)
 {
         const uint32_t *table = model->table;
+        uint32_t reg = crc;
         size_t i;
 
         if (model->refin) {
                 for (i = 0u; i < len; i++) {
                         uint32_t o = (uint32_t)(data[i] & 0xFFu);
 
-                        crc = (crc >> 8) ^ table[(crc ^ o) & 0xFFu];
+                        reg = (reg >> 8) ^ table[(reg ^ o) & 0xFFu];
                 }
         } else {
                 uint32_t mask = ucrc_width_mask(model->width);
@@ -138,11 +140,11 @@ ucrc_table_update(const ucrc_model_t *model, uint32_t crc,
                 for (i = 0u; i < len; i++) {
                         uint32_t o = (uint32_t)(data[i] & 0xFFu);
 
-                        crc = ((crc << 8) ^ table[((crc >> sh) ^ o) & 0xFFu])
+                        reg = ((reg << 8) ^ table[((reg >> sh) ^ o) & 0xFFu])
                               & mask;
                 }
         }
-        return crc;
+        return reg;
 }
 
 #elif UCRC_STRATEGY == UCRC_STRATEGY_NIBBLE
@@ -158,14 +160,15 @@ ucrc_table_update(const ucrc_model_t *model, uint32_t crc,
                   const ucrc_octet_t *data, size_t len)
 {
         const uint32_t *table = model->table;
+        uint32_t reg = crc;
         size_t i;
 
         if (model->refin) {
                 for (i = 0u; i < len; i++) {
                         uint32_t o = (uint32_t)(data[i] & 0xFFu);
 
-                        crc = (crc >> 4) ^ table[(crc ^ o) & 0xFu];
-                        crc = (crc >> 4) ^ table[(crc ^ (o >> 4)) & 0xFu];
+                        reg = (reg >> 4) ^ table[(reg ^ o) & 0xFu];
+                        reg = (reg >> 4) ^ table[(reg ^ (o >> 4)) & 0xFu];
                 }
         } else {
                 uint32_t mask = ucrc_width_mask(model->width);
@@ -174,14 +177,14 @@ ucrc_table_update(const ucrc_model_t *model, uint32_t crc,
                 for (i = 0u; i < len; i++) {
                         uint32_t o = (uint32_t)(data[i] & 0xFFu);
 
-                        crc = ((crc << 4)
-                               ^ table[((crc >> sh) ^ (o >> 4)) & 0xFu])
+                        reg = ((reg << 4)
+                               ^ table[((reg >> sh) ^ (o >> 4)) & 0xFu])
                               & mask;
-                        crc = ((crc << 4) ^ table[((crc >> sh) ^ o) & 0xFu])
+                        reg = ((reg << 4) ^ table[((reg >> sh) ^ o) & 0xFu])
                               & mask;
                 }
         }
-        return crc;
+        return reg;
 }
 
 #endif /* UCRC_STRATEGY */

@@ -81,9 +81,9 @@
 
 /* ================ VALIDATION ============================================== */
 
-_Static_assert(UCRC_STRATEGY == UCRC_STRATEGY_BITWISE
-                   || UCRC_STRATEGY == UCRC_STRATEGY_NIBBLE
-                   || UCRC_STRATEGY == UCRC_STRATEGY_BYTE,
+_Static_assert((UCRC_STRATEGY == UCRC_STRATEGY_BITWISE)
+                   || (UCRC_STRATEGY == UCRC_STRATEGY_NIBBLE)
+                   || (UCRC_STRATEGY == UCRC_STRATEGY_BYTE),
                "UCRC_STRATEGY must be one of the UCRC_STRATEGY_* values");
 
 _Static_assert(UCRC_ENABLE_CRC8 || UCRC_ENABLE_CRC16 || UCRC_ENABLE_CRC32,
