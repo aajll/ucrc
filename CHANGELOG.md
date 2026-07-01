@@ -15,3 +15,4 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 - `ucrc_conf.h`: width enables, strategy selection, and the overridable `UCRC_ASSERT` precondition trap.
 - Committed predefined-table source (`src/ucrc_tables.c`) with a native generator (`tools/gen_tables.c`), a `regen-tables` Meson target, and a `tables-up-to-date` freshness test.
 - Test matrix: every strategy, the 16-bit-MAU simulation, and an assertions-disabled defensive-path build, all verified against the published CRC `check` constants.
+- MISRA C:2012 hygiene: the library source analyses clean under `misch` (cppcheck + the `misra.py` addon), with two advisory deviations recorded in `misra-deviations.txt`: rule 15.5 (single point of exit) deviated project-wide as a deliberate guard-clause house style, and rule 8.7 (external linkage referenced in one translation unit) at the `ucrc_compute` public entry point, which only consumer translation units call.

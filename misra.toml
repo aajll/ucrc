@@ -34,3 +34,9 @@ texts = "${MISRA_RULE_TEXTS}"
 # Default output is the terminal. Add file outputs as needed, e.g.:
 #   outputs = ["terminal", {format = "json", path = "misra.json"}]
 outputs = ["terminal"]
+
+[deviations]
+# Project-level (blanket) MISRA deviations. Each entry is a cppcheck
+# suppression whose preceding comment block is the mandatory justification;
+# `misch deviations` harvests them into the audit record.
+suppressions = "misra-deviations.txt"
