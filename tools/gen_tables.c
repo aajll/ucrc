@@ -177,7 +177,8 @@ emit_table_block(FILE *out, unsigned entries)
                 fprintf(out, ", XorOut: ");
                 emit_literal(out, m->width, m->xorout);
                 fprintf(out, "\n * RefIn: %s, RefOut: %s\n",
-                        m->refin ? "true" : "false", m->refout ? "true" : "false");
+                        m->refin ? "true" : "false",
+                        m->refout ? "true" : "false");
                 fprintf(out, " * Check (\"123456789\"): ");
                 emit_literal(out, m->width, compute_bitwise_check(m));
                 fprintf(out, "\n */\n");
