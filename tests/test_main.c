@@ -3,12 +3,12 @@
  *
  * @file test_main.c
  *
- * @brief
- *    Driver for the ucrc unit-test suite. Each category module exposes a
- *    run_<category>_tests entry point; this file calls them in turn. The
- *    suite is built once per strategy and once with the 16-bit-MAU
- *    simulation (see tests/meson.build), so every code path runs against the
- *    published CRC check constants and the independent reference engine.
+ * @brief Run the ucrc unit-test suite.
+ *
+ * @details
+ *    Each category module provides a run_<category>_tests function. This file
+ *    calls each function. The build tests every strategy and the 16-bit-MAU
+ *    simulation against published CRC check values and a reference engine.
  */
 
 #include "test_harness.h"

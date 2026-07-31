@@ -2,14 +2,14 @@
  * SPDX-License-Identifier: MIT
  *
  * @file test_known_answers.c
- * @brief Known-answer, exhaustive single-octet, and error-sensitivity tests.
+ * @brief Test known answers, each octet value, and single-bit errors.
  */
 
 #include "test_harness.h"
 #include "test_support.h"
 #include "ucrc.h"
 
-/* Published Rocksoft `check` constants for the predefined models. */
+/* Test published Rocksoft @c check values for predefined models. */
 TEST_CASE(test_check_constants)
 {
         TEST_ASSERT(
@@ -23,10 +23,11 @@ TEST_CASE(test_check_constants)
             == 0xCBF43926u);
 }
 
-/* A custom (untabulated) model must work via the bitwise fallback path. */
+/* Test a custom model with the bitwise fallback. */
 TEST_CASE(test_custom_model_bitwise_fallback)
 {
-        /* CRC-16/MODBUS: 0x8005 reflected, init 0xFFFF; check = 0x4B37. */
+        /* CRC-16/MODBUS uses 0x8005 and an initial value of 0xFFFF. Its
+         * check value is 0x4B37. */
         const ucrc_model_t modbus = {
             .poly = 0x8005u,
             .init = 0xFFFFu,
@@ -41,7 +42,7 @@ TEST_CASE(test_custom_model_bitwise_fallback)
                     == 0x4B37u);
 }
 
-/* Results must be masked to the model width (no stray high bits). */
+/* Test that ucrc masks results to the model width. */
 TEST_CASE(test_width_masking)
 {
         uint32_t c8 =
@@ -53,8 +54,8 @@ TEST_CASE(test_width_masking)
         TEST_ASSERT((c16 & ~0xFFFFu) == 0u);
 }
 
-/* Every single-octet value matches the reference, exercising every table
- * entry of the active strategy for all enabled widths. */
+/* Test each octet value against the reference. This accesses each table entry
+ * for the selected strategy and enabled widths. */
 TEST_CASE(test_exhaustive_single_octet)
 {
         size_t m;
@@ -72,8 +73,7 @@ TEST_CASE(test_exhaustive_single_octet)
         }
 }
 
-/* A CRC must detect every single-bit error: flipping any one bit of the
- * message must change the CRC. */
+/* Test that each one-bit message error changes the CRC. */
 TEST_CASE(test_single_bit_sensitivity)
 {
 #define SENS_LEN 32u

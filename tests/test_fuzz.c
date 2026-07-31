@@ -2,8 +2,7 @@
  * SPDX-License-Identifier: MIT
  *
  * @file test_fuzz.c
- * @brief Fuzz against the independent reference, large buffers, and the CRC
- *        residue (append-and-verify) property.
+ * @brief Test random data, large buffers, and the CRC residue property.
  */
 
 #include "test_harness.h"
@@ -12,7 +11,7 @@
 
 #define FUZZ_BUF 256u
 
-/* The library must match the independent reference over random data. */
+/* Test random data against the reference implementation. */
 TEST_CASE(test_fuzz_vs_reference)
 {
         ucrc_octet_t buf[FUZZ_BUF];
@@ -37,7 +36,7 @@ TEST_CASE(test_fuzz_vs_reference)
 
 #define BIG_BUF 4096u
 
-/* Large buffers must also agree with the reference (size-handling check). */
+/* Test a large buffer against the reference implementation. */
 TEST_CASE(test_large_buffer)
 {
         static ucrc_octet_t buf[BIG_BUF];
@@ -60,10 +59,8 @@ TEST_CASE(test_large_buffer)
         }
 }
 
-/* The CRC of a correct codeword (message followed by its CRC in wire order)
- * is a model constant (the residue), independent of the message; corrupting
- * any single bit of the codeword changes it. This is the receiver's
- * append-and-verify property. */
+/* A correct codeword has a model-specific residue. The residue does not
+ * depend on the message. A one-bit codeword error changes the residue. */
 TEST_CASE(test_residue_property)
 {
         ucrc_octet_t buf[FUZZ_BUF + 4u];

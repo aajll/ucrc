@@ -2,14 +2,14 @@
  * SPDX-License-Identifier: MIT
  *
  * @file test_streaming.c
- * @brief One-shot vs streaming equivalence, fixed boundaries and fuzzed.
+ * @brief Compare one-shot and streaming CRC results.
  */
 
 #include "test_harness.h"
 #include "test_support.h"
 #include "ucrc.h"
 
-/* One-shot must equal streaming for every chunk boundary, including 0-len. */
+/* Test each chunk boundary, including a zero-length chunk. */
 TEST_CASE(test_streaming_boundaries)
 {
         size_t m;
@@ -24,8 +24,7 @@ TEST_CASE(test_streaming_boundaries)
                         uint32_t crc = ucrc_begin(model);
 
                         crc = ucrc_update(model, crc, UCRC_CHECK_INPUT, split);
-                        /* A zero-length update in the middle must be a no-op.
-                         */
+                        /* A zero-length update performs no operation. */
                         crc = ucrc_update(model, crc, UCRC_CHECK_INPUT, 0u);
                         crc = ucrc_update(model, crc, &UCRC_CHECK_INPUT[split],
                                           UCRC_CHECK_LEN - split);
@@ -36,7 +35,7 @@ TEST_CASE(test_streaming_boundaries)
 
 #define FUZZ_BUF 256u
 
-/* One-shot must equal streaming over random chunk boundaries. */
+/* Test random streaming chunk boundaries. */
 TEST_CASE(test_streaming_fuzz)
 {
         ucrc_octet_t buf[FUZZ_BUF];

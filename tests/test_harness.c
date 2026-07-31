@@ -2,7 +2,7 @@
  * SPDX-License-Identifier: MIT
  *
  * @file test_harness.c
- * @brief Test runner implementation for the ucrc unit-test suite.
+ * @brief Implement the ucrc unit-test runner.
  */
 
 #include "test_harness.h"

@@ -3,13 +3,12 @@
  *
  * @file test_harness.h
  *
- * @brief
- *    Minimal test harness shared by the ucrc unit-test modules.
+ * @brief Define the shared unit-test harness.
  *
- *    Provides the TEST_ASSERT / TEST_PASS / TEST_CASE macros and the
- *    run_test runner. Each category source file defines its TEST_CASEs with
- *    file-static linkage and exposes a single void run_<category>_tests(void)
- *    entry point that the driver in test_main.c calls.
+ * @details
+ *    This header defines TEST_ASSERT, TEST_PASS, TEST_CASE, and run_test.
+ *    Each category source file defines file-static test cases. It exposes one
+ *    run_<category>_tests(void) function for test_main.c.
  */
 
 #ifndef TEST_HARNESS_H_
@@ -33,7 +32,7 @@
         static void name(void);                                                \
         static void name(void)
 
-/** @brief Run a single test function and report a PASS line on success. */
+/** @brief Run one test function. Report PASS if it succeeds. */
 void run_test(void (*test_func)(void), const char *name);
 
 #endif /* TEST_HARNESS_H_ */

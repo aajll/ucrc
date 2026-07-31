@@ -3,11 +3,11 @@
  *
  * @file test_zlib.c
  *
- * @brief
- *    Cross-checks ucrc's CRC-32/ISO-HDLC model against zlib's reference
- *    crc32() over random data, one-shot and incremental. Built only when
- *    zlib is available (see tests/meson.build). Standalone driver; uses the
- *    shared harness and PRNG.
+ * @brief Compare ucrc CRC-32/ISO-HDLC results with zlib.
+ *
+ * @details
+ *    This standalone test compares one-shot and incremental results for
+ *    random data. The build includes it only when zlib is available.
  */
 
 #include "test_harness.h"
@@ -47,8 +47,8 @@ main(void)
                 u = ucrc_compute(&ucrc_crc32_iso_hdlc, ubuf, len);
                 TEST_ASSERT(u == z);
 
-                /* Incremental: zlib's running value and ucrc's streaming API
-                 * agree at an arbitrary split. */
+                /* Test an arbitrary split with zlib and the ucrc streaming
+                 * API. */
                 if (len > 0u) {
                         size_t cut = (size_t)(ucrc_test_rng(&rng) % (len + 1u));
                         uLong zr = crc32(0uL, zbuf, (uInt)cut);

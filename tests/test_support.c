@@ -2,7 +2,7 @@
  * SPDX-License-Identifier: MIT
  *
  * @file test_support.c
- * @brief Shared fixtures and helpers for the ucrc test modules.
+ * @brief Define shared data and functions for ucrc tests.
  */
 
 #include "test_support.h"

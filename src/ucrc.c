@@ -3,40 +3,33 @@
  *
  * @file ucrc.c
  *
- * @brief
- *    Generic CRC engine. One runtime model descriptor drives every width;
- *    the computation strategy is fixed at compile time (see ucrc_conf.h).
+ * @brief Implement the generic CRC engine.
  *
- *    The bitwise engine is always compiled and serves any model whose
- *    @c table is NULL (arbitrary application-defined polynomials), so a
- *    table-strategy build still handles untabulated models. Predefined
- *    models carry a table matching the build strategy and use the fast path.
+ * @details
+ *    One runtime model descriptor supports each CRC width. The build selects
+ *    the computation strategy in @c ucrc_conf.h.
+ *
+ *    The bitwise engine is always available for a model with a NULL @c table.
+ *    A table-strategy build can therefore process custom models. Predefined
+ *    models use a table that matches the selected strategy.
  *
  * @par MISRA C:2023 deviation record
- *    ucrc is written to be MISRA C:2023 aware (fixed-width unsigned types,
- *    explicit @c u suffixes, no heap, no recursion, no @c errno, no
- *    undefined-behaviour shifts, @c static @c const tables). There are zero
- *    required-rule deviations. The advisory-rule deviations below are the
- *    machine-checked record and mirror the misch/cppcheck deviation report
- *    (@c misra-deviations.txt plus the inline suppression comments):
+ *    ucrc uses fixed-width unsigned types and explicit @c u suffixes. It
+ *    does not use heap storage, recursion, or @c errno. It avoids undefined
+ *    shift behavior and uses @c static @c const tables. It has no required
+ *    rule deviations. @c misra-deviations.txt records advisory deviations.
  *
- *    @li Rule 15.5 (single point of exit): the public functions use early
- *        guard-clause returns for the defensive NULL / @c len==0 contract
- *        (@c ucrc_begin, @c ucrc_update, @c ucrc_finish). Justification: the
- *        guards make the no-undefined-behaviour contract explicit and keep the
- *        happy path unnested and auditable. Deviated project-wide in
- *        @c misra-deviations.txt.
- *    @li Rule 8.7 (external linkage referenced in one translation unit):
- *        @c ucrc_compute is a public entry point declared in @c ucrc.h and is
- *        called only by consumer translation units outside this library, so
- *        cppcheck sees a single TU; it cannot be made @c static. Suppressed
- *        inline at its definition.
+ *    @li Rule 15.5 requires one function exit. Public functions use early
+ *        returns to handle NULL pointers and zero lengths. These guards make
+ *        the no-undefined-behavior contract clear and keep the main path flat.
+ *    @li Rule 8.7 concerns external linkage used in one translation unit.
+ *        @c ucrc_compute is a public API function. Consumer translation units
+ *        call it, but cppcheck cannot see them. The inline suppression is at
+ *        the function definition.
  *
- *    Directive 4.9 (function-like macro) is a further deliberate deviation the
- *    automated rule set does not check: @c UCRC_ASSERT is a macro so
- * integrators can redirect it to a supervisor and so it compiles out entirely
- * in a hardened build. Full tool-driven compliance additionally requires a
- *    certified static analyser, which this repository does not vendor.
+ *    Directive 4.9 concerns function-like macros. @c UCRC_ASSERT is a macro
+ *    so an integrator can call a supervisor or remove the trap in a hardened
+ *    build. Full tool-based compliance also needs a certified static analyzer.
  */
 
 /* ================ INCLUDES ================================================ */
@@ -46,7 +39,7 @@
 /* ================ STATIC FUNCTIONS ======================================== */
 
 /**
- * @brief Mask covering @p width low bits (0xFFFFFFFF for width 32).
+ * @brief Get a mask for the low @p width bits. Width 32 returns 0xFFFFFFFF.
  */
 static uint32_t
 ucrc_width_mask(uint_fast8_t width)
@@ -55,7 +48,7 @@ ucrc_width_mask(uint_fast8_t width)
 }
 
 /**
- * @brief Reflect the low @p bits bits of @p value (bit 0 <-> bit bits-1).
+ * @brief Reflect the low @p bits of @p value.
  */
 static uint32_t
 ucrc_reflect(uint32_t value, uint_fast8_t bits)
@@ -74,8 +67,8 @@ ucrc_reflect(uint32_t value, uint_fast8_t bits)
 /**
  * @brief True when @p model is processed with a reflected running register.
  *
- * Only the table strategies keep the register reflected; the bitwise engine
- * reflects each input octet instead and keeps the register in normal form.
+ * Table strategies keep the register reflected. The bitwise engine reflects
+ * each input octet and keeps the register in normal form.
  */
 static bool
 ucrc_uses_reflected_register(const ucrc_model_t *model)
@@ -84,8 +77,10 @@ ucrc_uses_reflected_register(const ucrc_model_t *model)
 }
 
 /**
- * @brief Bit-by-bit update. Handles @c refin / @c refout independently and
- *        keeps the running register in normal (non-reflected) form.
+ * @brief Update one CRC bit at a time.
+ *
+ * This function handles @c refin and @c refout independently. It keeps the
+ * running register in normal form.
  */
 static uint32_t
 ucrc_bitwise_update(const ucrc_model_t *model, uint32_t crc,
@@ -122,11 +117,10 @@ ucrc_bitwise_update(const ucrc_model_t *model, uint32_t crc,
 #if UCRC_STRATEGY == UCRC_STRATEGY_BYTE
 
 /*
- * Byte-wise (256-entry) update. Tables are uint32_t for every width, so one
- * function serves CRC-8/16/32 with no per-type specialisation and no cast.
- * The table matches model->refin: reflected models keep the register
- * reflected (right-shift), non-reflected models keep it normal (left-shift
- * with masking to the model width).
+ * Update one octet with a 256-entry table. Each table uses @c uint32_t, so
+ * this function supports each CRC width without a type cast. Reflected models
+ * use a reflected register and right shifts. Other models use normal form and
+ * left shifts. The function masks the register to the model width.
  */
 static uint32_t
 ucrc_table_update(const ucrc_model_t *model, uint32_t crc,
@@ -159,10 +153,9 @@ ucrc_table_update(const ucrc_model_t *model, uint32_t crc,
 #elif UCRC_STRATEGY == UCRC_STRATEGY_NIBBLE
 
 /*
- * Half-byte (16-entry) update, two lookups per octet. Tables are uint32_t for
- * every width, so one function serves all widths with no cast. Reflected
- * processes the low nibble first; non-reflected processes the high nibble
- * first.
+ * Update one octet with a 16-entry table. This function performs two lookups
+ * per octet. Reflected models process the low nibble first. Other models
+ * process the high nibble first.
  */
 static uint32_t
 ucrc_table_update(const ucrc_model_t *model, uint32_t crc,
@@ -234,11 +227,11 @@ ucrc_update(const ucrc_model_t *model, uint32_t crc, const ucrc_octet_t *data,
         }
 
 #if UCRC_STRATEGY == UCRC_STRATEGY_BITWISE
-        /* Bitwise build: the table engine is not compiled; every model,
-         * tabulated or not, is served by the bitwise engine. */
+        /* This build has no table engine. The bitwise engine handles every
+         * model. */
         return ucrc_bitwise_update(model, crc, data, len);
 #else
-        /* Table build: untabulated (custom) models fall back to bitwise. */
+        /* Models with no table use the bitwise engine. */
         if (model->table == NULL) {
                 return ucrc_bitwise_update(model, crc, data, len);
         }
@@ -266,9 +259,9 @@ ucrc_finish(const ucrc_model_t *model, uint32_t crc)
 }
 
 uint32_t
-/* cppcheck-suppress[misra-c2012-8.7] ; @deviation public API entry point
- * declared in ucrc.h; referenced only by consumer TUs outside this library,
- * so cppcheck sees a single translation unit */
+/* cppcheck-suppress[misra-c2012-8.7] @deviation Public API function declared
+ * in ucrc.h. Consumer translation units call it, but cppcheck sees one
+ * translation unit. */
 ucrc_compute(const ucrc_model_t *model, const ucrc_octet_t *data, size_t len)
 {
         uint32_t crc = ucrc_begin(model);

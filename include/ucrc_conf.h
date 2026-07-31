@@ -3,19 +3,15 @@
  *
  * @file ucrc_conf.h
  *
- * @brief
- *    Compile-time configuration for ucrc.
+ * @brief Configure ucrc at compile time.
  *
  * @details
- *    Selects which CRC widths are compiled in, which computation strategy
- *    is used, and the precondition-trap hook. It is included automatically
- *    by @c ucrc.h. Override any option by defining it before this header is
- *    first reached, or at the toolchain level (e.g. @c -DUCRC_STRATEGY=...).
+ *    Select the CRC widths, the computation strategy, and the precondition
+ *    trap. @c ucrc.h includes this header automatically. Define an option
+ *    before it includes this header. You can also define it in the toolchain.
  *
- * @note
- *    The CRC *model* (polynomial, init, reflection, xor-out) is a runtime
- *    descriptor (@c ucrc_model_t in @c ucrc.h), not a compile-time option.
- *    This header only configures which code and tables are built.
+ * @note The CRC model is a runtime descriptor, not a compile-time option.
+ *       This header configures the code and tables in the build.
  */
 
 #ifndef UCRC_CONF_H_
@@ -25,9 +21,8 @@
 
 /* ================ ENABLED WIDTHS ========================================== */
 /*
- * Each CRC width is compiled in only when its switch is non-zero. CRC-16 and
- * CRC-32 are on by default (the IPC and Flash/EEPROM consumers); CRC-8 is
- * included but off by default - enable it with -DUCRC_ENABLE_CRC8=1.
+ * A non-zero switch enables its CRC width. CRC-16 and CRC-32 are enabled by
+ * default. Enable CRC-8 with -DUCRC_ENABLE_CRC8=1.
  */
 
 #ifndef UCRC_ENABLE_CRC8
@@ -47,9 +42,8 @@
 
 /* ================ COMPUTATION STRATEGY ==================================== */
 /*
- * One strategy is selected per build, trading table ROM for speed. The
- * bitwise engine is always present as the fallback for models that carry no
- * table (table == NULL), so application-defined models work in any build.
+ * Each build selects one strategy. A table trades ROM for speed. The bitwise
+ * engine handles models with no table (table == NULL) in every build.
  */
 
 /** @brief Bit-by-bit strategy: no tables, smallest image, slowest. */
@@ -66,16 +60,15 @@
 
 /* ================ PRECONDITION TRAP ======================================= */
 /*
- * UCRC_ASSERT reports contract violations (e.g. a NULL model). It is a
- * development/integration trap, not a production error channel: every public
- * function also defends itself so that a build with UCRC_ASSERT disabled
- * never executes undefined behaviour. Safety-critical integrators may
- * redefine this to route into their supervisor (log + safe state).
+ * UCRC_ASSERT reports contract violations, such as a NULL model. It is an
+ * integration trap, not a production error channel. Public functions also
+ * prevent undefined behavior when UCRC_ASSERT is disabled. An integrator can
+ * redefine this macro to call a supervisor.
  */
 
 #ifndef UCRC_ASSERT
 #include <assert.h>
-/** @brief Overridable precondition trap. Defaults to the standard assert. */
+/** @brief Precondition trap. It defaults to the standard assert. */
 #define UCRC_ASSERT(expr) assert(expr)
 #endif
 
