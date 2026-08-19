@@ -54,6 +54,13 @@ meson test -C build --verbose
 - Prefer explicit fixed-width integer types when ABI or serialization matters.
 - Use `ucrc_conf.h` for compile-time configuration options. This header is automatically included by `ucrc.h` and can be overridden before including the main header.
 
+### Comment placement (Doxygen)
+
+- Inline trailing annotations (`/**< ... */`) on `enum`/`struct` members are allowed only when the resulting line fits the 80-column limit.
+- If any member's annotation would overrun, move **all** of that aggregate's member docs into a single structured Doxygen block above the type, as an `@details` list of `- ::SYMBOL  description` entries.
+- Never mix inline and block forms within one aggregate, and never leave a trailing comment that clang-format would wrap onto a second line.
+- After editing, verify with a `clang-format --style=file` no-reformat diff and an 80-column scan.
+
 ### Testing
 
 - Run `meson test -C build` after changes.
