@@ -4,6 +4,19 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## [Unreleased]
+
+### Added
+
+- CI cross-builds the library with TI C2000 CGT 22.6.2 and 25.11.1 under the COFF and EABI object formats, with warnings as errors.
+- CI runs MISRA C:2023 analysis with `misch` and fails on any finding not covered by `misra-deviations.txt`.
+- `scripts/format.sh`, which pins the clang-format release and runs it with `uvx`. CI checks formatting through it.
+
+### Changed
+
+- CI installs Meson, Ninja and gcovr with `uv` instead of `pip`.
+- The coverage gate is 100 % line and 87 % branch, the coverage the suite already reaches.
+
 ## [0.1.0] - 2026-07-01
 
 ### Added
