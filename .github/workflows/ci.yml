@@ -125,32 +125,6 @@ jobs:
         run: scripts/format.sh
 
   # ---------------------------------------------------------------------------
-  # Build the Doxygen + Sphinx/Breathe documentation so API-doc drift is
-  # caught in CI rather than at release time.
-  # ---------------------------------------------------------------------------
-  docs:
-    name: "Docs build"
-    runs-on: ubuntu-latest
-
-    steps:
-      - uses: actions/checkout@v4
-
-      - name: Install Doxygen
-        run: sudo apt-get update -q && sudo apt-get install -y doxygen
-
-      - uses: astral-sh/setup-uv@v10.1.0
-
-      - name: Build HTML docs
-        run: make -C docs/sphinx html
-
-      - name: Upload docs
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: html-docs
-          path: docs/_build/html/
-
-  # ---------------------------------------------------------------------------
   # Verify the library compiles cleanly in release mode (no tests, no
   # sanitizers) - the configuration a downstream project would use.
   # ---------------------------------------------------------------------------

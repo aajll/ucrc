@@ -47,9 +47,6 @@
 # Meson build output
 build/
 
-# Documentation build output
-docs/_build/
-
 # Coverage artefacts
 coverage-report/
 *.gcov
