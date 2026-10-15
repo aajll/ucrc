@@ -53,8 +53,6 @@ The headers install to a `ucrc/` subdirectory, and the `pkg-config` flags add th
 #include "ucrc.h"
 ```
 
-`ucrc_version.h` is installed beside it as a deprecated header that includes `ucrc.h`.
-
 ## Configuration
 
 Every option is a macro with a default in `ucrc_conf.h`. Define it with `-D` for the library sources and every file that includes `ucrc.h`, so the model declarations and the compiled tables agree.

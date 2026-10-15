@@ -56,7 +56,6 @@ install_headers(
   'include/ucrc.h',
   'include/ucrc_conf.h',
   'include/ucrc_platform.h',
-  'include/ucrc_version.h',
   subdir: 'ucrc',
 )
 
