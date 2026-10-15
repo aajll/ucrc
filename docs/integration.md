@@ -25,7 +25,7 @@ Compile both source files with the same configuration macros as every file that 
 #include "ucrc.h"
 ```
 
-`src/ucrc_tables.c` is committed, so no code generation runs at build time. `ucrc_version.h` exists only in Meson builds.
+`src/ucrc_tables.c` is committed, so no code generation runs at build time. `ucrc.h` defines the version macros described in [api.md](api.md#version).
 
 ## Meson subproject
 
@@ -51,8 +51,9 @@ The headers install to a `ucrc/` subdirectory, and the `pkg-config` flags add th
 <!-- snippet: skip -->
 ```c
 #include "ucrc.h"
-#include "ucrc_version.h"
 ```
+
+`ucrc_version.h` is installed beside it as a deprecated header that includes `ucrc.h`.
 
 ## Configuration
 
