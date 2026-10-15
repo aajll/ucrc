@@ -22,6 +22,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 ### Removed
 
 - `ucrc_version.h`. `ucrc.h` defines the version macros.
+- The `extern "C"` guards in `ucrc.h`. The library is C11 only and its headers make no C++ claim.
 
 ## [0.1.0] - 2026-07-01
 
