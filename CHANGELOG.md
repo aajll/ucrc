@@ -14,6 +14,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ### Changed
 
+- The README is a short landing page; installation, the API reference and the design record are in `docs/integration.md`, `docs/api.md` and `docs/design.md`, which replace the Sphinx site. A `ucrc docs examples` test compiles every documented C example.
 - CI installs Meson, Ninja and gcovr with `uv` instead of `pip`.
 - The coverage gate is 100 % line and 87 % branch, the coverage the suite already reaches.
 
