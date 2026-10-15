@@ -45,7 +45,7 @@ scripts/format.sh --fix    # rewrite in place
 
 ### 1.2 Notes
 
-- `include/ucrc.h` defines the version macros, and `meson setup` fails when they differ from `project(version:)`, so a release updates both. `include/ucrc_version.h` is a deprecated header that includes `ucrc.h`.
+- `include/ucrc.h` defines the version macros, and `meson setup` fails when they differ from `project(version:)`, so a release updates both.
 - Configuration is by macro (`UCRC_ENABLE_CRC*`, `UCRC_STRATEGY`, `UCRC_ASSERT`) with defaults in `ucrc_conf.h`; there are no Meson options beyond `build_tests`.
 - The test suite is modular: `tests/test_harness.c` holds the runner, `tests/test_support.c` the model list, PRNG and independent reference engine, and each category module exposes `run_<category>_tests()` for `tests/test_main.c`.
 

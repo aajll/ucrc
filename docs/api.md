@@ -118,15 +118,6 @@ uint32_t crc = ucrc_finish(&ucrc_crc32_iso_hdlc, running); /* 0xCBF43926 */
 
 ## Version
 
-<!-- snippet: skip -->
-```c
-#include "ucrc_version.h"  /* Meson builds only */
-```
-
-The generated header defines `UCRC_VERSION` and `UCRC_VERSION_STRING` as the version string, and `UCRC_VERSION_MAJOR`, `UCRC_VERSION_MINOR` and `UCRC_VERSION_PATCH` as integers.
-
-## Version
-
 `ucrc.h` defines the release it belongs to, so a copied-in header still identifies itself:
 
 <!-- snippet: skip -->
@@ -145,4 +136,4 @@ The generated header defines `UCRC_VERSION` and `UCRC_VERSION_STRING` as the ver
 #endif
 ```
 
-`UCRC_VERSION_STRING` is the same string as `UCRC_VERSION`. `ucrc_version.h` is a deprecated header that includes `ucrc.h`, kept so existing includes compile until the next major release.
+`UCRC_VERSION_STRING` is the same string as `UCRC_VERSION`.

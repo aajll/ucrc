@@ -8,7 +8,6 @@
 #include "test_harness.h"
 #include "test_support.h"
 #include "ucrc.h"
-#include "ucrc_version.h"
 
 /* Empty input yields the model's empty-message CRC. */
 TEST_CASE(test_empty_input)
@@ -40,7 +39,7 @@ TEST_CASE(test_defensive_boundaries)
         TEST_ASSERT(ucrc_compute(&ucrc_crc16_ccitt_false, NULL, 0u) == 0xFFFFu);
 }
 
-/* The deprecated version header still exposes the macros from ucrc.h. */
+/* The version number agrees with its parts. */
 TEST_CASE(test_version_macros)
 {
         TEST_ASSERT(UCRC_VERSION_NUMBER
