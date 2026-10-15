@@ -2,6 +2,7 @@ project(
   'ucrc',
   'c',
   version: '0.1.0',
+  meson_version: '>=0.57.0',
   default_options: [
     'c_std=c11',
     'warning_level=3',
@@ -11,31 +12,31 @@ project(
 
 project_description = 'Lean CRC-8/16/32 library for embedded, RTOS, and Linux targets'
 
-# === Version header ===========================================================
+# === Version ==================================================================
+# include/ucrc.h defines the version macros, so a copy-in build has them.
+# Configuration fails when they differ from the project version.
 
-ver = meson.project_version().split('.')
-major = ver[0].to_int()
-minor = ver[1].to_int()
-patch = ver[2].to_int()
-
-conf = configuration_data()
-conf.set_quoted('VERSION', meson.project_version())
-conf.set('MAJOR', major)
-conf.set('MINOR', minor)
-conf.set('PATCH', patch)
-
-generated_version_header = configure_file(
-  input: 'config' / 'ucrc_version.h.in',
-  output: 'ucrc_version.h',
-  configuration: conf,
-  install: true,
-  install_dir: get_option('includedir') / 'ucrc',
-)
+fs = import('fs')
+version_parts = meson.project_version().split('.')
+version_macros = {
+  'UCRC_VERSION_MAJOR': version_parts[0],
+  'UCRC_VERSION_MINOR': version_parts[1],
+  'UCRC_VERSION_PATCH': version_parts[2],
+  'UCRC_VERSION': '"' + meson.project_version() + '"',
+}
+header_lines = []
+foreach line : fs.read('include' / 'ucrc.h').split('\n')
+  header_lines += ' '.join(line.split())
+endforeach
+foreach name, value : version_macros
+  if '#define @0@ @1@'.format(name, value) not in header_lines
+    error('include/ucrc.h must define @0@ as @1@'.format(name, value))
+  endif
+endforeach
 
 # === Include directories ======================================================
 
 public_headers = include_directories('include')
-generated_headers = include_directories('.')
 
 # === Library ==================================================================
 
@@ -47,7 +48,7 @@ library_sources = files(
 ucrc_lib = static_library(
   'ucrc',
   library_sources,
-  include_directories: [public_headers, generated_headers],
+  include_directories: [public_headers],
   install: true,
 )
 
@@ -55,13 +56,13 @@ install_headers(
   'include/ucrc.h',
   'include/ucrc_conf.h',
   'include/ucrc_platform.h',
+  'include/ucrc_version.h',
   subdir: 'ucrc',
 )
 
 ucrc_dep = declare_dependency(
-  include_directories: [public_headers, generated_headers],
+  include_directories: [public_headers],
   link_with: ucrc_lib,
-  sources: generated_version_header,
 )
 
 meson.override_dependency('ucrc', ucrc_dep)

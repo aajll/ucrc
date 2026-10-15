@@ -80,4 +80,4 @@ When zlib is available, a further test compares CRC-32/ISO-HDLC with zlib's `crc
 
 CI compiles the library with warnings as errors under TI C2000 Code Generation Tools 22.6.2.LTS and 25.11.1.LTS in C11 C28x mode, under both the COFF and EABI ABIs, and for an Arm Cortex-M0 with freestanding flags. This validates the source dialect and type assumptions only. Linking, target execution, and final map-file footprint remain consumer-owned checks.
 
-MISRA C:2023 analysis with `misch` runs in CI and fails on any finding not covered by the deviations recorded in `misra-deviations.txt` and inline in `src/ucrc.c`.
+MISRA C:2023 analysis with `misch` runs in CI and fails on any finding not covered by the deviations recorded in `misra-deviations.txt` and inline in `src/ucrc.c` and `include/ucrc.h`. The inline deviation in the header is Rule 2.5 (unused macro) for the version macros, which exist for consumers and are not used by the library.

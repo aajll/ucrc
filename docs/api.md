@@ -124,3 +124,25 @@ uint32_t crc = ucrc_finish(&ucrc_crc32_iso_hdlc, running); /* 0xCBF43926 */
 ```
 
 The generated header defines `UCRC_VERSION` and `UCRC_VERSION_STRING` as the version string, and `UCRC_VERSION_MAJOR`, `UCRC_VERSION_MINOR` and `UCRC_VERSION_PATCH` as integers.
+
+## Version
+
+`ucrc.h` defines the release it belongs to, so a copied-in header still identifies itself:
+
+<!-- snippet: skip -->
+```c
+#define UCRC_VERSION_MAJOR 0
+#define UCRC_VERSION_MINOR 1
+#define UCRC_VERSION_PATCH 0
+#define UCRC_VERSION "0.1.0"
+```
+
+`UCRC_VERSION_NUMBER` is `MAJOR * 10000 + MINOR * 100 + PATCH` as a `long`, so it holds any version where `int` is 16 bits. Compare it in the preprocessor to require a minimum release:
+
+```c
+#if UCRC_VERSION_NUMBER < 100L
+#error "ucrc 0.1.0 or later is required"
+#endif
+```
+
+`UCRC_VERSION_STRING` is the same string as `UCRC_VERSION`. `ucrc_version.h` is a deprecated header that includes `ucrc.h`, kept so existing includes compile until the next major release.

@@ -29,7 +29,7 @@ foreach s : strategies
   variant_lib = static_library(
     'ucrc_test_' + s[0],
     library_sources,
-    include_directories: [public_headers, generated_headers],
+    include_directories: [public_headers],
     c_args: variant_args,
   )
 
@@ -37,7 +37,7 @@ foreach s : strategies
     'test_ucrc_' + s[0],
     test_sources,
     link_with: variant_lib,
-    include_directories: [public_headers, generated_headers],
+    include_directories: [public_headers],
     c_args: variant_args,
   )
 
@@ -53,7 +53,7 @@ sim_args = test_common_args + [
 sim_lib = static_library(
   'ucrc_test_sim',
   library_sources,
-  include_directories: [public_headers, generated_headers],
+  include_directories: [public_headers],
   c_args: sim_args,
 )
 
@@ -61,7 +61,7 @@ sim_exe = executable(
   'test_ucrc_sim',
   test_sources,
   link_with: sim_lib,
-  include_directories: [public_headers, generated_headers],
+  include_directories: [public_headers],
   c_args: sim_args,
 )
 
@@ -78,7 +78,7 @@ noassert_args = test_common_args + [
 noassert_lib = static_library(
   'ucrc_test_noassert',
   library_sources,
-  include_directories: [public_headers, generated_headers],
+  include_directories: [public_headers],
   c_args: noassert_args,
 )
 
@@ -86,7 +86,7 @@ noassert_exe = executable(
   'test_ucrc_noassert',
   test_sources,
   link_with: noassert_lib,
-  include_directories: [public_headers, generated_headers],
+  include_directories: [public_headers],
   c_args: noassert_args,
 )
 
@@ -99,7 +99,7 @@ if zlib_dep.found()
   zlib_lib = static_library(
     'ucrc_test_zlib',
     library_sources,
-    include_directories: [public_headers, generated_headers],
+    include_directories: [public_headers],
     c_args: test_common_args,
   )
 
@@ -108,7 +108,7 @@ if zlib_dep.found()
     files('test_harness.c', 'test_support.c', 'test_zlib.c'),
     link_with: zlib_lib,
     dependencies: [zlib_dep],
-    include_directories: [public_headers, generated_headers],
+    include_directories: [public_headers],
     c_args: test_common_args,
   )
 
