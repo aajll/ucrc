@@ -40,10 +40,6 @@
 #ifndef UCRC_H_
 #define UCRC_H_
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
 /* ================ INCLUDES ================================================ */
 
 #include <stdbool.h>
@@ -213,9 +209,5 @@ uint32_t ucrc_update(const ucrc_model_t *model, uint32_t crc,
 uint32_t ucrc_finish(const ucrc_model_t *model, uint32_t crc);
 
 /** @} */ /* end of ucrc_api */
-
-#ifdef __cplusplus
-}
-#endif
 
 #endif /* UCRC_H_ */
