@@ -1,3 +1,5 @@
+# SPDX-License-Identifier: MIT
+
 # Unit tests. The suite is split into category modules that share a common
 # harness (test_harness.h/.c) and support helpers (test_support.h/.c). It is
 # built once per computation strategy and once with the 16-bit-MAU simulation,
