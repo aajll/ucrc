@@ -17,7 +17,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 - `ucrc.h` defines `UCRC_VERSION_MAJOR`, `_MINOR`, `_PATCH`, `UCRC_VERSION`, `UCRC_VERSION_STRING` and a new `UCRC_VERSION_NUMBER` (`long`, `MAJOR * 10000 + MINOR * 100 + PATCH`), so a copied-in header carries its version. Meson fails to configure when the header and `project(version:)` disagree, and the build needs Meson 0.57 or later.
 - The README is a short landing page; installation, the API reference and the design record are in `docs/integration.md`, `docs/api.md` and `docs/design.md`, which replace the Sphinx site. A `ucrc docs examples` test compiles every documented C example.
 - CI installs Meson, Ninja and gcovr with `uv` instead of `pip`.
-- The coverage gate is 100 % line and 87 % branch, the coverage the suite already reaches.
+- The coverage gate is 100 % line and 100 % branch.
+- Table models may set `refin != refout`. A table depends only on `poly`, `width` and `refin`, so a model can reuse a predefined table with a different `refout`, `init` or `xorout`.
 
 ### Removed
 

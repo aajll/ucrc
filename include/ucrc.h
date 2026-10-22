@@ -94,9 +94,10 @@
  *    when @c table is @c NULL the bitwise engine is used regardless of the
  *    build strategy (the path for arbitrary application-defined polynomials).
  *
- * @note  @c refin and @c refout must be equal for table strategies; the
- *        bitwise engine supports them independently. The predefined models
- *        all satisfy @c refin @c == @c refout.
+ * @note  @c refin and @c refout are independent for every engine. A table
+ *        depends on @c refin but not on @c refout, so a model may reuse a
+ *        predefined model's table with a different @c refout, @c init or
+ *        @c xorout.
  */
 typedef struct {
         uint32_t poly;         /**< Generator polynomial, normal form.    */

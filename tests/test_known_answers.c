@@ -103,12 +103,37 @@ TEST_CASE(test_single_bit_sensitivity)
         }
 }
 
+/* A table model with refin != refout matches the bitwise engine and the
+ * reference: each predefined model with refout flipped keeps its table. */
+TEST_CASE(test_table_mixed_reflection)
+{
+        for (size_t m = 0u; m < UCRC_TEST_NMODELS; m++) {
+                ucrc_model_t tabled = *UCRC_TEST_MODELS[m];
+                ucrc_model_t bitwise;
+                uint32_t expected;
+
+                tabled.refout = !tabled.refout;
+                bitwise = tabled;
+                bitwise.table = NULL;
+                expected =
+                    ucrc_test_ref(&tabled, UCRC_CHECK_INPUT, UCRC_CHECK_LEN);
+
+                TEST_ASSERT(
+                    ucrc_compute(&tabled, UCRC_CHECK_INPUT, UCRC_CHECK_LEN)
+                    == expected);
+                TEST_ASSERT(
+                    ucrc_compute(&bitwise, UCRC_CHECK_INPUT, UCRC_CHECK_LEN)
+                    == expected);
+        }
+}
+
 void
 run_known_answer_tests(void)
 {
         run_test(test_check_constants, "check_constants");
         run_test(test_custom_model_bitwise_fallback,
                  "custom_model_bitwise_fallback");
+        run_test(test_table_mixed_reflection, "table_mixed_reflection");
         run_test(test_width_masking, "width_masking");
         run_test(test_exhaustive_single_octet, "exhaustive_single_octet");
         run_test(test_single_bit_sensitivity, "single_bit_sensitivity");
