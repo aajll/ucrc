@@ -67,12 +67,13 @@ sim_exe = executable(
 
 test('ucrc byte 16-bit-MAU', sim_exe)
 
-# Assertions-disabled variant: exercises the production no-UB defensive
-# returns (NULL arguments) that would otherwise trip UCRC_ASSERT.
+# Assertion-recording variant: UCRC_ASSERT counts failures instead of
+# aborting, so the NULL-argument cases check that each precondition trap fires
+# and that the production no-UB defensive return follows it.
 noassert_args = test_common_args + [
   '-DUCRC_STRATEGY=UCRC_STRATEGY_BYTE',
-  '-DUCRC_ASSERT(expr)=((void)0)',
-  '-DUCRC_TEST_NO_ASSERT=1',
+  '-include', meson.current_source_dir() / 'test_assert_hook.h',
+  '-DUCRC_TEST_ASSERT_HOOK=1',
 ]
 
 noassert_lib = static_library(
@@ -90,7 +91,7 @@ noassert_exe = executable(
   c_args: noassert_args,
 )
 
-test('ucrc byte assertions-disabled', noassert_exe)
+test('ucrc byte assertion-recording', noassert_exe)
 
 # Cross-check the CRC-32 model against zlib's reference crc32(), when zlib is
 # available on the build host (skipped gracefully otherwise).

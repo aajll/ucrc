@@ -67,7 +67,7 @@ scripts/format.sh --fix    # rewrite in place
 - CI definitions live in `.github/workflows/ci.yml`.
 - Prefer running the same commands locally as CI runs (see §1.1 above).
 - Install Python tools (Meson, Ninja, gcovr, misch) with `uv tool install`, never `pip`; CI does the same through `astral-sh/setup-uv`.
-- The CI jobs are: tests under ASan/UBSan, every strategy against every width combination with warnings as errors, an Arm Cortex-M0 freestanding compile, a release build, a TI C2000 library build (CGT 22.6.2 and 25.11.1, COFF and EABI, warnings as errors), `clang-format`, a 100 percent line and 87 percent branch coverage gate, and `misch` against the recorded deviations.
+- The CI jobs are: tests under ASan/UBSan, every strategy against every width combination with warnings as errors, an Arm Cortex-M0 freestanding compile, a release build, a TI C2000 library build (CGT 22.6.2 and 25.11.1, COFF and EABI, warnings as errors), `clang-format`, a 100 percent line and 97 percent branch coverage gate, and `misch` against the recorded deviations.
 
 ---
 
@@ -127,4 +127,4 @@ scripts/format.sh --fix    # rewrite in place
 - Run `meson test -C build` after every change.
 - Add a test case for each bug fix, checked against a published check value or the reference engine.
 - In tests, never use `sizeof(array)` as an element count; `ucrc_octet_t` is 16 bits under the simulation.
-- Keep `src/` and `include/` at the coverage gate (100 percent line, 87 percent branch).
+- Keep `src/` and `include/` at the coverage gate (100 percent line, 97 percent branch).

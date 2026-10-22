@@ -76,7 +76,7 @@ The test suite is built once per strategy, once with the 16-bit-MAU simulation, 
 - width masking, detection of every single-bit error, and the CRC residue of a message followed by its own CRC;
 - the empty message and the defensive returns for `NULL` arguments.
 
-When zlib is available, a further test compares CRC-32/ISO-HDLC with zlib's `crc32()`. CI runs the suite under AddressSanitizer and UndefinedBehaviorSanitizer, compiles every strategy with each width enabled alone and all together with warnings as errors, and gates `src/` and `include/` at 100 percent line and 87 percent branch coverage. A documentation test compiles every C example in the README and `docs/` against the header.
+When zlib is available, a further test compares CRC-32/ISO-HDLC with zlib's `crc32()`. CI runs the suite under AddressSanitizer and UndefinedBehaviorSanitizer, compiles every strategy with each width enabled alone and all together with warnings as errors, and gates `src/` and `include/` at 100 percent line and 97 percent branch coverage. The two branches outside the gate are the `refout` arm of `ucrc_finish()` for a reflected register when `refout` is false, which only a table model with `refin != refout` reaches, and table models require `refin == refout`. A documentation test compiles every C example in the README and `docs/` against the header.
 
 CI compiles the library with warnings as errors under TI C2000 Code Generation Tools 22.6.2.LTS and 25.11.1.LTS in C11 C28x mode, under both the COFF and EABI ABIs, and for an Arm Cortex-M0 with freestanding flags. This validates the source dialect and type assumptions only. Linking, target execution, and final map-file footprint remain consumer-owned checks.
 

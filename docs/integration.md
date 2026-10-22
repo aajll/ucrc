@@ -80,7 +80,7 @@ meson setup build "-Dc_args=-DUCRC_STRATEGY=UCRC_STRATEGY_NIBBLE -DUCRC_ENABLE_C
 meson setup build --buildtype=release
 meson compile -C build
 
-# Every strategy, the 16-bit-MAU simulation, the assertions-disabled build,
+# Every strategy, the 16-bit-MAU simulation, the assertion-recording build,
 # the zlib comparison, the table freshness check, and the documentation test
 meson setup build --buildtype=debug -Dbuild_tests=true
 meson compile -C build
