@@ -65,9 +65,9 @@
 /* cppcheck-suppress-begin misra-c2012-2.5 ; @deviation Public version macros
  * for consumer diagnostics and #if checks; the library does not use them. */
 #define UCRC_VERSION_MAJOR  0
-#define UCRC_VERSION_MINOR  1
+#define UCRC_VERSION_MINOR  2
 #define UCRC_VERSION_PATCH  0
-#define UCRC_VERSION        "0.1.0"
+#define UCRC_VERSION        "0.2.0"
 #define UCRC_VERSION_STRING UCRC_VERSION
 #define UCRC_VERSION_NUMBER                                                    \
         ((UCRC_VERSION_MAJOR * 10000L) + (UCRC_VERSION_MINOR * 100L)           \
