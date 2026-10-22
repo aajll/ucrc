@@ -11,7 +11,7 @@ jobs:
   # ---------------------------------------------------------------------------
   # Full test suite under ASan + UBSan. tests/meson.build
   # builds every strategy (bitwise / nibble / byte), the 16-bit-MAU
-  # simulation, and an assertions-disabled variant, so one `meson test`
+  # simulation, and an assertion-recording variant, so one `meson test`
   # exercises every engine path.
   # ---------------------------------------------------------------------------
   test:
@@ -181,7 +181,7 @@ jobs:
             --txt coverage-report/summary.txt \
             --print-summary \
             --fail-under-line 100 \
-            --fail-under-branch 87
+            --fail-under-branch 97
 
       - name: Upload coverage report
         if: always()

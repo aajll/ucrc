@@ -18,22 +18,38 @@ TEST_CASE(test_empty_input)
         TEST_ASSERT(ucrc_compute(&ucrc_crc16_ccitt_false, NULL, 0u) == 0xFFFFu);
 }
 
+#ifdef UCRC_TEST_ASSERT_HOOK
+unsigned int ucrc_test_assert_failures = 0u;
+#endif
+
 /* Defensive behaviour. The NULL-argument cases are contract violations that
- * trip UCRC_ASSERT in a normal build, so the production no-UB return path is
- * only exercised in the variant compiled with assertions disabled
- * (UCRC_TEST_NO_ASSERT). The valid len-0 case is always safe and checked. */
+ * abort through UCRC_ASSERT in a normal build, so they run only in the
+ * variant whose UCRC_ASSERT records the failure and continues
+ * (UCRC_TEST_ASSERT_HOOK). Each case checks that the trap fired once per
+ * violated precondition and that the defensive return follows. The valid
+ * len-0 case is always safe and checked. */
 TEST_CASE(test_defensive_boundaries)
 {
-#ifdef UCRC_TEST_NO_ASSERT
+#ifdef UCRC_TEST_ASSERT_HOOK
         ucrc_octet_t buf[1] = {0u};
+        uint32_t crc = ucrc_begin(&ucrc_crc16_ccitt_false);
 
+        ucrc_test_assert_failures = 0u;
+        /* begin, update and finish each trap the NULL model. */
         TEST_ASSERT(ucrc_compute(NULL, buf, 1u) == 0u);
+        TEST_ASSERT(ucrc_test_assert_failures == 3u);
         TEST_ASSERT(ucrc_begin(NULL) == 0u);
+        TEST_ASSERT(ucrc_test_assert_failures == 4u);
+        TEST_ASSERT(ucrc_update(NULL, crc, buf, 1u) == crc);
+        TEST_ASSERT(ucrc_test_assert_failures == 5u);
         TEST_ASSERT(ucrc_finish(NULL, 0u) == 0u);
+        TEST_ASSERT(ucrc_test_assert_failures == 6u);
         /* NULL data with a non-zero length must not dereference. */
-        TEST_ASSERT(ucrc_update(&ucrc_crc16_ccitt_false,
-                                ucrc_begin(&ucrc_crc16_ccitt_false), NULL, 4u)
-                    == ucrc_begin(&ucrc_crc16_ccitt_false));
+        TEST_ASSERT(ucrc_update(&ucrc_crc16_ccitt_false, crc, NULL, 4u) == crc);
+        TEST_ASSERT(ucrc_test_assert_failures == 7u);
+        /* Valid calls do not trap. */
+        (void)ucrc_compute(&ucrc_crc16_ccitt_false, buf, 1u);
+        TEST_ASSERT(ucrc_test_assert_failures == 7u);
 #endif
         /* NULL data with len 0 is a valid no-op (safe with assertions on). */
         TEST_ASSERT(ucrc_compute(&ucrc_crc16_ccitt_false, NULL, 0u) == 0xFFFFu);

@@ -14,12 +14,12 @@ uv tool install gcovr
 uv tool install misch
 
 # Configure with tests and sanitisers (CI default). The suite builds every
-# strategy, the 16-bit-MAU simulation, and an assertions-disabled variant.
+# strategy, the 16-bit-MAU simulation, and an assertion-recording variant.
 meson setup build --buildtype=debug -Dbuild_tests=true -Db_sanitize=address,undefined
 meson compile -C build
 meson test -C build --verbose
 
-# Coverage (CI gate is 100% line and 87% branch for src/ and include/)
+# Coverage (CI gate is 100% line and 97% branch for src/ and include/)
 meson setup build_cov --buildtype=debug -Dbuild_tests=true -Db_coverage=true
 meson compile -C build_cov && meson test -C build_cov
 gcovr --root . --filter 'src/' --filter 'include/' --merge-mode-functions=separate --print-summary
@@ -73,7 +73,7 @@ Full tool-driven compliance beyond this analysis needs a certified static analys
 - The suite has a shared harness (`tests/test_harness.c`), shared fixtures and the reference engine (`tests/test_support.c`), and one module per category. Each module exposes a `run_<category>_tests()` called from `tests/test_main.c`; register new files in `tests/meson.build`.
 - Never use `sizeof(array)` as an element count in tests: `ucrc_octet_t` is 16 bits under the 16-bit-MAU simulation, so `sizeof` is twice the count.
 - Fuzz seeds are fixed so a failure reproduces from the test name. Do not add non-deterministic tests.
-- CI enforces 100 percent line and 87 percent branch coverage of `src/` and `include/`.
+- CI enforces 100 percent line and 97 percent branch coverage of `src/` and `include/`.
 - The `ucrc docs examples` test compiles every C code block in `README.md`, `CONTRIBUTING.md`, and `docs/` against the public header, through `tests/docs/check_snippets.py`. A block compiles at file scope by default. On the line directly above the fence, put `<!-- snippet: body -->` for a block of statements, or `<!-- snippet: skip -->` for pseudo-code or a copy of a header definition.
 
 ## Documentation
