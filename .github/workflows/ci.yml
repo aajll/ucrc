@@ -181,7 +181,7 @@ jobs:
             --txt coverage-report/summary.txt \
             --print-summary \
             --fail-under-line 100 \
-            --fail-under-branch 97
+            --fail-under-branch 100
 
       - name: Upload coverage report
         if: always()

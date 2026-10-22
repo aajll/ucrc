@@ -36,7 +36,7 @@ typedef struct {
 
 A model holds the standard CRC parameters. `poly` is the generator polynomial in normal (non-reflected) form without its top bit, `init` the register's starting value, and `xorout` the value XORed into the final result. `refin` reflects each input octet and `refout` reflects the final register. `width` is the CRC width in bits and must be 8, 16 or 32; it is not checked at run time.
 
-`table` selects the engine. `NULL` selects the bitwise engine, which handles any model. A non-`NULL` table must be one built for the selected strategy and for this model, and table models need `refin == refout`. The predefined models carry the right table for the build, so application-defined models set `table` to `NULL`.
+`table` selects the engine. `NULL` selects the bitwise engine, which handles any model. A non-`NULL` table must be one built for the selected strategy and for this model's `poly`, `width` and `refin`; `refout`, `init` and `xorout` do not affect it. The predefined models carry the right table for the build, so application-defined models set `table` to `NULL`.
 
 ### Predefined models
 
